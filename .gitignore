@@ -2,3 +2,7 @@
 /MyWebPortfolio/.vs
 MyWebPortfolio/MyWebPortfolio.csproj.user
 /MyWebPortfolio/bin
+/.vs
+/bin
+MyWebPortfolio.csproj.user
+/obj
