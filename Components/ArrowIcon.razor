@@ -1,0 +1,9 @@
+@* Bold arrow; points right by default. Rotate: 180 = left, -90 = up, 90 = down. *@
+<svg viewBox="0 0 24 24" class="@Class" style="transform:rotate(@(Rotate)deg)" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true">
+    <path d="M2 12h18M13 5l7 7-7 7" />
+</svg>
+
+@code {
+    [Parameter] public int Rotate { get; set; } = 0;
+    [Parameter] public string Class { get; set; } = "size-5";
+}

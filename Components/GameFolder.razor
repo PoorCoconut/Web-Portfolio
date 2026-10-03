@@ -1,0 +1,34 @@
+@* Folder card: slanted tab with barcode, spaced name under the tab, two trail layers that ripple outward on hover.
+   Mirrored flips it (tab on the right, trail on the left). Everything is sized in cqw of the folder, so it scales as one piece.
+   Put an <img class="size-full object-cover"> in ChildContent when artwork is ready. *@
+<div class="cq folder group relative w-full transition-transform duration-500 ease-out hover:-translate-y-1.5 @Class" style="--s:@(Mirrored ? -1 : 1)">
+    <div class="folder-trail" style="--x:calc(4cqw * var(--s));--y:1.9cqw;--d:0s" aria-hidden="true"></div>
+    <div class="folder-trail" style="--x:calc(7cqw * var(--s));--y:4.4cqw;--d:.2s" aria-hidden="true"></div>
+
+    <div class="absolute top-0 h-[6.6cqw] w-[40%] text-edge @(Mirrored ? "right-0" : "left-0")" aria-hidden="true">
+        <svg class="absolute inset-0 size-full @(Mirrored ? "-scale-x-100" : "")" viewBox="0 0 100 46" preserveAspectRatio="none" fill="none">
+            <polyline points="0.5,46 0.5,0.5 91.6,0.5 100,46" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke" />
+        </svg>
+        <div class="absolute inset-x-[1.2cqw] inset-y-[1.1cqw] flex items-center overflow-hidden @(Mirrored ? "justify-end" : "")">
+            <span class="block whitespace-nowrap font-barcode leading-none text-white" style="@BarcodeStyle">@BarcodeText</span>
+        </div>
+    </div>
+
+    <div class="folder-body relative mt-[6.6cqw] aspect-[695/370] border border-edge bg-void">
+        <span class="absolute top-[.3cqw] font-electrolize text-[max(2.1cqw,8px)] lowercase leading-none tracking-[0.6em] text-edge @(Mirrored ? "right-[1.2cqw] text-right" : "left-[1.2cqw]")">@Title</span>
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+    [Parameter] public bool Mirrored { get; set; }
+    [Parameter] public string Class { get; set; } = "";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    // 'Ì' = Code 128 start-B, 'Î' = stop. Visual only (no checksum).
+    private string BarcodeText => "\u00CC" + Title.ToUpperInvariant() + "\u00CE";
+
+    // Libre Barcode 128 advances ~0.334em per symbol; size the text so the barcode fills ~91% of the tab for any title length.
+    private string BarcodeStyle => "font-size:" + (109.0 / (Title.Length + 2)).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "cqw";
+}

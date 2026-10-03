@@ -1,3 +1,22 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
-@Body
+<div class="mx-auto w-full max-w-[1280px] px-5 pb-16 md:px-[6%]">
+    <header class="pt-6">
+        <div class="flex items-end justify-between gap-4 text-xs font-semibold md:text-[15px]">
+            <a href="#home" class="tracking-tight">CUESHE ALFORQUE || CRAFTY COCO</a>
+            <nav class="flex gap-5 md:gap-8">
+                <a href="#home" class="underline underline-offset-4">HOME</a>
+                <a href="#about" class="transition-colors hover:text-edge">ABOUT</a>
+                <a href="#contact" class="transition-colors hover:text-edge">CONTACT</a>
+            </nav>
+        </div>
+        <Divider Class="mt-3" Gap="34" />
+    </header>
+
+    <main>@Body</main>
+
+    <footer class="mt-10 flex flex-col gap-6 text-xs font-semibold md:flex-row md:justify-between">
+        <section id="about"><p class="text-edge-mid">ABOUT — coming soon</p></section>
+        <section id="contact"><p class="text-edge-mid">CONTACT — coming soon</p></section>
+    </footer>
+</div>

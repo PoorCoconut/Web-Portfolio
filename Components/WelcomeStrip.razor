@@ -1,0 +1,92 @@
+@implements IDisposable
+
+@* Heading band + 3-slot carousel. Items wrap around forever. It advances on its own every few seconds;
+   pressing an arrow takes over and pauses the auto-advance for a while. Items are image URLs ("" = empty placeholder box). *@
+<section id="welcome" class="mt-6">
+    <h2 class="reveal border-y border-edge-mid py-1.5 text-center text-[clamp(.8rem,2.3vw,1.15rem)] font-bold leading-none tracking-tight">WELCOME TO MY PORTFOLIO. HAVE A LOOK AROUND.</h2>
+
+    <div class="reveal relative mt-3" style="--reveal-delay:150ms">
+        <button @onclick="() => Manual(-1)" aria-label="Previous"
+                class="absolute left-0 top-1/2 z-10 -translate-y-1/2 p-1 text-white transition hover:scale-125 hover:text-edge focus-visible:outline-2 focus-visible:outline-white">
+            <ArrowIcon Rotate="180" Class="size-5 md:size-6" />
+        </button>
+        <button @onclick="() => Manual(1)" aria-label="Next"
+                class="absolute right-0 top-1/2 z-10 -translate-y-1/2 p-1 text-white transition hover:scale-125 hover:text-edge focus-visible:outline-2 focus-visible:outline-white">
+            <ArrowIcon Class="size-5 md:size-6" />
+        </button>
+
+        <div class="fade-x relative mx-[7%] aspect-[474/140] overflow-hidden">
+            @for (var i = 0; i < Items.Count; i++)
+            {
+                var d = Offset(i);
+                <div class="strip-item @(d == 0 ? "is-center" : "") @(_snap.Contains(i) ? "snap" : "")" style="--d:@d">
+                    <div class="strip-box">
+                        @if (!string.IsNullOrEmpty(Items[i]))
+                        {
+                            <img src="@Items[i]" alt="" class="size-full object-cover" />
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter] public IReadOnlyList<string> Items { get; set; } = ["", "", ""];
+    [Parameter] public int AutoSeconds { get; set; } = 5;
+    [Parameter] public int PauseAfterManualSeconds { get; set; } = 12;
+
+    private int _index;
+    private readonly HashSet<int> _snap = new();
+    private DateTime _pausedUntil;
+    private CancellationTokenSource? _cts;
+
+    // -1, 0 or 1 relative to the current item (3 items => everything wraps)
+    private int Offset(int i)
+    {
+        var n = Items.Count;
+        var d = ((i - _index) % n + n) % n;
+        return d == 2 ? -1 : d;
+    }
+
+    private async Task Step(int dir)
+    {
+        var n = Items.Count;
+        var before = Enumerable.Range(0, n).Select(Offset).ToArray();
+        _index = ((_index + dir) % n + n) % n;
+        _snap.Clear();
+        for (var i = 0; i < n; i++)
+            if (Math.Abs(Offset(i) - before[i]) == 2) _snap.Add(i); // the item wrapping to the far side hides while it jumps
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(60);
+        _snap.Clear();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Manual(int dir)
+    {
+        _pausedUntil = DateTime.UtcNow.AddSeconds(PauseAfterManualSeconds);
+        await Step(dir);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender) return;
+        _cts = new CancellationTokenSource();
+        _ = AutoLoop(_cts.Token);
+    }
+
+    private async Task AutoLoop(CancellationToken ct)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(AutoSeconds));
+        try
+        {
+            while (await timer.WaitForNextTickAsync(ct))
+                if (DateTime.UtcNow >= _pausedUntil) await Step(1);
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    public void Dispose() { _cts?.Cancel(); _cts?.Dispose(); }
+}

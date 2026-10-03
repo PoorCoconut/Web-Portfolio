@@ -1,0 +1,12 @@
+@* Horizontal rule with a circle sitting on it. Gap > 0 leaves breathing room around the circle (used in the header). *@
+<div class="relative h-px w-full [--d:44px] md:[--d:68px] @Class" style="--g:@(Gap)px" aria-hidden="true">
+    <div class="absolute left-0 top-0 h-px bg-edge" style="right:calc(50% + var(--d) / 2 + var(--g))"></div>
+    <div class="absolute right-0 top-0 h-px bg-edge" style="left:calc(50% + var(--d) / 2 + var(--g))"></div>
+    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-edge bg-void"
+         style="width:var(--d);height:var(--d)"></div>
+</div>
+
+@code {
+    [Parameter] public string Class { get; set; } = "";
+    [Parameter] public int Gap { get; set; } = 0;
+}

@@ -12,4 +12,12 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.12" PrivateAssets="all" />
   </ItemGroup>
 
+  <!-- Tailwind v4 standalone CLI: put tailwindcss.exe in /tools. If it is missing, the checked-in wwwroot/css/site.css is used as is. -->
+  <PropertyGroup>
+    <TailwindExe>$(MSBuildProjectDirectory)\tools\tailwindcss.exe</TailwindExe>
+  </PropertyGroup>
+  <Target Name="BuildTailwind" BeforeTargets="BeforeBuild" Condition="Exists('$(TailwindExe)')">
+    <Exec Command="&quot;$(TailwindExe)&quot; -i Styles/input.css -o wwwroot/css/site.css --minify" />
+  </Target>
+
 </Project>

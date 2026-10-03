@@ -1,7 +1,88 @@
-﻿@page "/"
+@page "/"
+@inject IJSRuntime JS
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Cueshe Alforque | Crafty Coco</PageTitle>
 
-<h1>Hello, world!</h1>
+@* ================= HERO ================= *@
+<section id="home" class="mt-7 grid gap-5 md:grid-cols-[1.41fr_1fr]">
+    <div class="flex flex-col gap-5">
+        <div class="cq reveal">
+            <h1 class="border-l border-white pl-[3cqw] text-[17.5cqw] font-bold uppercase leading-[1.08] tracking-[-0.02em]">CRAFT.<br />CREATE.<br />COMPOSE.</h1>
+        </div>
+        <ImageBox Class="aspect-[4/3] md:aspect-auto md:min-h-48 md:flex-1" Delay="150" />
+    </div>
 
-Welcome to your new app.
+    <div class="cq flex flex-col">
+        <ImageBox Class="aspect-[287/328] w-full" Float="true" FloatAmp="-6" Delay="100" />
+
+        <div class="reveal relative mt-[3cqw]" style="--reveal-delay:250ms">
+            <div class="absolute right-0 top-0 w-[23cqw]">
+                <ImageBox Class="aspect-[66/58] w-full" Float="true" FloatDuration="6" FloatDelay="1.2" FloatAmp="-5" />
+            </div>
+            <div class="flex items-center gap-[1.6cqw]">
+                <span class="text-[5.4cqw] font-bold leading-none">I AM</span>
+                <div class="w-[60cqw]">
+                    <div class="flex h-[3.6cqw] items-center overflow-hidden">
+                        <span class="block whitespace-nowrap font-barcode leading-none text-white" style="font-size:10.2cqw">&#204;CUESHE ALFORQUE&#206;</span>
+                    </div>
+                    <span class="block text-[max(1.5cqw,4px)] uppercase leading-none tracking-[1.05em] text-edge-mid">cueshe alforque</span>
+                </div>
+            </div>
+            <p class="mt-[1.6cqw] text-[17.5cqw] font-bold uppercase leading-[.92] tracking-[-0.02em]">CUESHE<br />ALFORQUE</p>
+        </div>
+
+        <ScrollList Items="@_roles" Class="mt-[1cqw] h-[36cqw]" Duration="16"
+                    ItemClass="text-[10.8cqw] font-bold uppercase leading-[.88] tracking-[-0.02em]" />
+    </div>
+</section>
+
+@* ================= WELCOME STRIP ================= *@
+<WelcomeStrip Items="@_welcomeItems" />
+
+<Divider Class="my-14 md:my-20" />
+
+@* ================= GAMES + FEATURED ================= *@
+<section id="games" class="grid gap-5 md:grid-cols-[1.41fr_1fr] md:items-stretch">
+    <div class="cq flex flex-col">
+        <p class="reveal text-[4.2cqw] font-bold leading-none">I MAKE</p>
+        <h2 class="reveal mt-[1cqw] text-[27.5cqw] font-bold uppercase leading-[.9] tracking-[-0.02em]" aria-label="GAMES">G<ArrowheadA />MES</h2>
+        <ScrollList Items="@_games" Class="mt-[3cqw] h-[36cqw]" Duration="26"
+                    ItemClass="text-[4.9cqw] font-medium uppercase leading-[1.15] tracking-[0.2em]" />
+        <p class="reveal mt-[2.5cqw] font-koulen text-[9cqw] leading-none tracking-[0.01em]">FEATURED GAMES</p>
+    </div>
+
+    <div class="cq flex flex-col gap-[3cqw] md:justify-between">
+        <ImageBox Class="aspect-[216/224] w-full" Float="true" FloatDuration="9" FloatDelay="0.6" Delay="150" />
+        <div class="reveal flex items-end justify-between" style="--reveal-delay:300ms" aria-label="Konami code">
+            <ArrowIcon Rotate="-90" Class="size-[9cqw]" /><ArrowIcon Rotate="-90" Class="size-[9cqw]" />
+            <ArrowIcon Rotate="90" Class="size-[9cqw]" /><ArrowIcon Rotate="90" Class="size-[9cqw]" />
+            <ArrowIcon Rotate="180" Class="size-[9cqw]" /><ArrowIcon Class="size-[9cqw]" />
+            <ArrowIcon Rotate="180" Class="size-[9cqw]" /><ArrowIcon Class="size-[9cqw]" />
+            <span class="text-[12.5cqw] font-bold leading-[.8]">AB</span>
+        </div>
+    </div>
+</section>
+
+<section id="featured" class="mt-14 flex flex-col gap-14 md:gap-20">
+    <FeaturedRow Title="void vanguard" FloatDelay="0" />
+    <FeaturedRow Title="terminal friction" Mirrored="true" FloatDelay="1.5" />
+    <FeaturedRow Title="banhwa" FloatDelay="3" />
+</section>
+
+<Divider Class="my-16 md:my-24" />
+
+@* ================= TUNES ================= *@
+<TunesSection />
+
+<Divider Class="mt-16 md:mt-24" />
+
+@code {
+    private readonly string[] _roles = ["GAME DEVELOPER", "PROGRAMMER", "COMPOSER", "ARTIST"];
+    private readonly string[] _games = ["Void Vanguard", "Courier", "Elkemy", "Ghost Gambit", "Terminal Friction", "Revelation", "Banhwa"];
+    private readonly string[] _welcomeItems = ["", "", ""];   // TODO: image URLs for your 3 welcome items
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await JS.InvokeVoidAsync("portfolio.observeReveals");
+    }
+}

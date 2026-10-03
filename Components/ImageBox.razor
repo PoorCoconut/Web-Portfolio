@@ -1,0 +1,21 @@
+@* Bordered placeholder for an image. Give it a size through Class (aspect-[w/h], flex-1, ...).
+   Float makes it drift up and down. Put an <img class="size-full object-cover"> in ChildContent later. *@
+<div class="reveal relative @Class" style="--reveal-delay:@(Delay)ms">
+    <div class="absolute inset-0 border border-edge @(Float ? "animate-float" : "") @Fade"
+         style="--float-dur:@F(FloatDuration)s;--float-delay:@F(FloatDelay)s;--float-amp:@(FloatAmp)px">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    private static string F(double v) => v.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    [Parameter] public string Class { get; set; } = "";
+    [Parameter] public string Fade { get; set; } = "";          // e.g. "fade-b"
+    [Parameter] public bool Float { get; set; }
+    [Parameter] public double FloatDuration { get; set; } = 8;
+    [Parameter] public double FloatDelay { get; set; } = 0;
+    [Parameter] public int FloatAmp { get; set; } = -8;
+    [Parameter] public int Delay { get; set; } = 0;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

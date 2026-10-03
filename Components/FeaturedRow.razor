@@ -1,0 +1,16 @@
+@* One featured game: folder + a plain image box beside it. Mirrored rows put the folder on the right. *@
+<div class="flex flex-col gap-6 md:flex-row md:justify-between md:gap-0 @(Mirrored ? "md:flex-row-reverse" : "")">
+    <div class="w-full md:w-[60.5%]">
+        <GameFolder Title="@Title" Mirrored="Mirrored" />
+    </div>
+    @* margin-top in % = % of row width: 6.6% of the folder width (= tab height) so the box lines up with the folder body *@
+    <div class="flex aspect-video md:mt-[4%] md:aspect-auto md:w-[31%] md:self-stretch">
+        <ImageBox Class="w-full" Float="true" FloatDelay="@FloatDelay" Delay="150" />
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+    [Parameter] public bool Mirrored { get; set; }
+    [Parameter] public double FloatDelay { get; set; }
+}
