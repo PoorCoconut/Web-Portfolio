@@ -72,21 +72,40 @@ h1:focus { outline: none; }
   border: 1px solid var(--color-edge-dim);
   background: var(--color-void);
   transform: translate(var(--x), var(--y));
-  transition: transform .6s cubic-bezier(.2,.7,.2,1), border-color .6s;
+  transition: transform 1.1s cubic-bezier(.2,.7,.2,1), border-color 1.1s;
 }
 .folder:hover .folder-trail {
-  animation: ripple 1.8s ease-in-out infinite;
+  animation: ripple 3.8s ease-in-out infinite;
   animation-delay: var(--d);
 }
 @keyframes ripple {
   0%, 100% { transform: translate(var(--x), var(--y)); border-color: var(--color-edge-dim); }
   50% { transform: translate(calc(var(--x) + 2.5cqw * var(--s)), calc(var(--y) + 1.8cqw)); border-color: var(--color-edge); }
 }
-.folder-body { transition: box-shadow .5s, border-color .5s; }
+.folder-body { transition: box-shadow .9s, border-color .9s; }
 .folder:hover .folder-body {
   border-color: #fff;
   box-shadow: 0 0 32px rgba(160,159,166,.28), inset 0 0 24px rgba(160,159,166,.08);
 }
+
+/* ---------- layered role lines: each fades toward its bottom and the next line overlaps it ---------- */
+.layered-line {
+  -webkit-mask-image: linear-gradient(to bottom, #000 30%, rgba(0,0,0,.1) 100%);
+          mask-image: linear-gradient(to bottom, #000 30%, rgba(0,0,0,.1) 100%);
+}
+.layered-line + .layered-line { margin-top: -.26em; }
+
+/* ---------- GAMES arrowhead: starts low, rises into alignment (on reveal, and again on hover) ---------- */
+.arrow-a {
+  transform: translateY(.34em);
+  transition: transform 1.2s cubic-bezier(.34,1.45,.5,1) .6s;
+}
+.is-visible .arrow-a { transform: none; }
+@keyframes arrow-settle {
+  from { transform: translateY(.34em); }
+  to { transform: none; }
+}
+.arrow-host.is-visible:hover .arrow-a { animation: arrow-settle 1.2s cubic-bezier(.34,1.45,.5,1); }
 
 /* ---------- welcome strip: 3 slots, items wrap around ---------- */
 .strip-item {
@@ -105,5 +124,6 @@ h1:focus { outline: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
-  .animate-float, .animate-ticker, .animate-disc, .folder:hover .folder-trail { animation: none; }
+  .animate-float, .animate-ticker, .animate-disc, .folder:hover .folder-trail, .arrow-host:hover .arrow-a { animation: none; }
+  .arrow-a { transform: none; transition: none; }
 }
