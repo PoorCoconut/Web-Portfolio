@@ -1,4 +1,5 @@
-@* The arrowhead that replaces the "A" in GAMES. Sized in em so it follows the heading's font-size. *@
-<svg viewBox="0 0 56 64" class="mx-[.02em] inline-block h-[.7em] w-[.62em] fill-current" aria-hidden="true">
+@* The arrowhead that replaces the "A" in GAMES. It rests on the baseline (Tailwind's svg default is vertical-align:middle,
+   which is what pushed it low) and the .arrow-a CSS makes it rise into place when the heading appears, and again on hover. *@
+<svg viewBox="0 0 56 64" class="arrow-a mx-[.02em] inline-block h-[.7em] w-[.62em] fill-current align-baseline" aria-hidden="true">
     <path d="M28 0 L56 64 L28 47 L0 64 Z" />
 </svg>

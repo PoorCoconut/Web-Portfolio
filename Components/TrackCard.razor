@@ -1,21 +1,22 @@
-@* Disc (rotates while playing) + bar ("PLAY:" / "NOW PLAYING:" + title) + play/pause button. Audio comes later. *@
+@* Disc (rotates while playing) + bar ("PLAY:" / "NOW PLAYING:" + title) + play/pause button. Audio comes later.
+   Everything is sized in cqw of this card, and min-w-0 keeps the row inside its column. *@
 <div class="cq">
     <div class="flex items-start gap-[1.2cqw]">
-        <div class="relative flex flex-1 items-center">
-            <svg viewBox="0 0 100 100" class="animate-disc relative z-10 size-[36cqw] shrink-0 text-white"
+        <div class="relative flex min-w-0 flex-1 items-center">
+            <svg viewBox="0 0 100 100" class="animate-disc relative z-10 size-[31cqw] shrink-0 text-white"
                  style="animation-play-state:@(IsPlaying ? "running" : "paused")" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
                 <circle cx="50" cy="50" r="49.5" fill="#030013" vector-effect="non-scaling-stroke" />
                 <circle cx="50" cy="40" r="33" vector-effect="non-scaling-stroke" />
                 <circle cx="50" cy="64" r="24" vector-effect="non-scaling-stroke" />
                 <circle cx="50" cy="61" r="13" vector-effect="non-scaling-stroke" />
             </svg>
-            <div class="-ml-[6cqw] flex h-[22cqw] min-w-0 flex-1 flex-col justify-center border border-edge pl-[9cqw] pr-[2cqw]">
-                <span class="text-[4.8cqw] font-medium leading-none">@(IsPlaying ? "NOW PLAYING:" : "PLAY:")</span>
-                <span class="mt-[1.2cqw] truncate text-[8.2cqw] font-bold uppercase leading-[1.1]" title="@Title">@Title</span>
+            <div class="-ml-[5cqw] flex h-[19cqw] min-w-0 flex-1 flex-col justify-center overflow-hidden border border-edge pl-[8cqw] pr-[2cqw]">
+                <span class="text-[4.2cqw] font-medium leading-none">@(IsPlaying ? "NOW PLAYING:" : "PLAY:")</span>
+                <span class="mt-[1cqw] truncate font-bold uppercase leading-[1.1]" style="@TitleStyle" title="@Title">@Title</span>
             </div>
         </div>
         <button @onclick="OnToggle" aria-label="@(IsPlaying ? "Pause" : "Play") @Title"
-                class="grid size-[6.4cqw] shrink-0 place-items-center text-white transition hover:scale-125 focus-visible:outline-2 focus-visible:outline-white">
+                class="grid size-[6cqw] shrink-0 place-items-center text-white transition hover:scale-125 focus-visible:outline-2 focus-visible:outline-white">
             @if (IsPlaying)
             {
                 <svg viewBox="0 0 20 20" class="size-full fill-current"><rect x="2" y="1" width="6" height="18" /><rect x="12" y="1" width="6" height="18" /></svg>
@@ -32,4 +33,7 @@
     [Parameter, EditorRequired] public string Title { get; set; } = "";
     [Parameter] public bool IsPlaying { get; set; }
     [Parameter] public EventCallback OnToggle { get; set; }
+
+    // Bold caps average ~0.665em per character; the text area is ~54cqw wide, so long titles shrink to fit.
+    private string TitleStyle => "font-size:" + Math.Min(7.5, 81.0 / Math.Max(Title.Length, 1)).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "cqw";
 }
