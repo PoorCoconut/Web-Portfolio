@@ -1,0 +1,14 @@
+@* Lines stacked tightly so each one overlaps the one above it; every line fades toward its bottom so the layering reads cleanly.
+   Lines fade in one after another when scrolled into view. Set the type size/weight with ItemClass. *@
+<ul class="@Class">
+    @for (var i = 0; i < Items.Count; i++)
+    {
+        <li class="reveal layered-line @ItemClass" style="--reveal-delay:@(i * 140)ms">@Items[i]</li>
+    }
+</ul>
+
+@code {
+    [Parameter] public IReadOnlyList<string> Items { get; set; } = [];
+    [Parameter] public string Class { get; set; } = "";
+    [Parameter] public string ItemClass { get; set; } = "";
+}
