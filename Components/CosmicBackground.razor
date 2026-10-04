@@ -1,0 +1,157 @@
+@inject IJSRuntime JS
+
+@* Fixed, click-through backdrop. Layers (back to front): drifting nebula glows, twinkling stars + sparkles, a big celestial diagram
+   (axes, overlapping circles, crescent moons, rotating orbit rings, a 16-point compass star) and the odd shooting star.
+   Pointer parallax and scroll-driven rotation come from CSS vars (--mx, --my, --sp) set by portfolio.js. All strokes are 1px like the rest of the site. *@
+<div class="cosmos" aria-hidden="true">
+    <div class="cosmos-glow" style="left:-18vmax;top:-26vmax;--drift-dur:44s;--drift-x:7vmax;--drift-y:5vmax"></div>
+    <div class="cosmos-glow cosmos-glow-b" style="right:-24vmax;bottom:-30vmax;--drift-dur:58s;--drift-x:-6vmax;--drift-y:-4vmax"></div>
+
+    <svg class="cosmos-stars cosmos-par" style="--par:8;--par-sy:-18" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+        @foreach (var g in _groups)
+        {
+            <g class="tw" style="--tw-dur:@(F(g.Dur))s;--tw-del:@(F(g.Del))s" fill="#fff" fill-opacity="@F(g.Op)">
+                @foreach (var s in g.Set)
+                {
+                    <circle cx="@F(s.X)" cy="@F(s.Y)" r="@F(s.R)" />
+                }
+            </g>
+        }
+        <g class="tw" style="--tw-dur:8s;--tw-del:1.5s" fill="none" stroke="#fff" stroke-width="1">
+            @foreach (var s in _sparks)
+            {
+                <path d="@SparkPath(s)" />
+            }
+        </g>
+    </svg>
+
+    <div class="cosmos-diagram cosmos-par" style="--par:-14">
+        <div class="cosmos-scroll">
+
+            @* fixed geometry: axes, overlapping circles, moons *@
+            <svg class="cosmos-layer" viewBox="0 0 1000 1000">
+                <defs>
+                    <mask id="cres-lg" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
+                        <circle cx="500" cy="500" r="60" fill="#fff" />
+                        <circle cx="500" cy="484" r="46" fill="#000" />
+                    </mask>
+                    <mask id="cres-sm" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
+                        <circle cx="500" cy="215" r="40" fill="#fff" />
+                        <circle cx="500" cy="203" r="29" fill="#000" />
+                    </mask>
+                </defs>
+
+                <line class="c-line" x1="500" y1="40" x2="500" y2="960" />
+                <line class="c-faint" x1="70" y1="500" x2="930" y2="500" />
+                <path class="c-dot" d="M500 22 L504 42 L500 56 L496 42 Z" />
+                <path class="c-dot" d="M946 500 L926 496 L914 500 L926 504 Z" />
+                <path class="c-dot" d="M54 500 L74 496 L86 500 L74 504 Z" />
+
+                <circle class="c-faint" cx="500" cy="300" r="190" />
+                <circle class="c-faint" cx="500" cy="700" r="190" />
+                <circle class="c-line" cx="500" cy="500" r="262" />
+                <circle class="c-faint" cx="500" cy="500" r="136" />
+                <ellipse class="c-faint" cx="500" cy="500" rx="372" ry="212" />
+                <circle class="c-line" cx="500" cy="500" r="66" />
+
+                @foreach (var y in _ticks)
+                {
+                    <circle class="c-dot" cx="500" cy="@y" r="2" />
+                }
+
+                <g class="moon">
+                    <circle cx="500" cy="500" r="52" fill="#fff" mask="url(#cres-lg)" />
+                    <circle cx="500" cy="215" r="34" fill="#fff" mask="url(#cres-sm)" />
+                    <circle cx="500" cy="880" r="11" fill="#fff" />
+                </g>
+            </svg>
+
+            @* orbit rings, each spinning at its own pace *@
+            <svg class="cosmos-layer spin" style="--spin:90s" viewBox="0 0 1000 1000">
+                <circle class="c-dots" cx="500" cy="500" r="330" />
+                <circle class="c-dash" cx="500" cy="500" r="250" />
+                <circle class="c-line" cx="@Px(330, 20)" cy="@Py(330, 20)" r="8" />
+                <circle class="c-line" cx="@Px(330, 150)" cy="@Py(330, 150)" r="12" />
+                <circle class="c-line" cx="@Px(330, 265)" cy="@Py(330, 265)" r="7" />
+                <circle class="c-dot" cx="@Px(250, 60)" cy="@Py(250, 60)" r="3.5" />
+                <circle class="c-dot" cx="@Px(250, 200)" cy="@Py(250, 200)" r="3.5" />
+            </svg>
+
+            <svg class="cosmos-layer spin spin-rev" style="--spin:150s" viewBox="0 0 1000 1000">
+                <circle class="c-dash" cx="500" cy="500" r="430" />
+                <circle class="c-faint" cx="500" cy="500" r="385" />
+                <circle class="c-line" cx="@Px(430, 100)" cy="@Py(430, 100)" r="11" />
+                <circle class="c-line" cx="@Px(430, 305)" cy="@Py(430, 305)" r="9" />
+                <circle class="c-dot" cx="@Px(430, 205)" cy="@Py(430, 205)" r="4.5" />
+                <circle class="c-dot" cx="@Px(385, 330)" cy="@Py(385, 330)" r="3" />
+            </svg>
+
+            <svg class="cosmos-layer spin" style="--spin:55s" viewBox="0 0 1000 1000">
+                <circle class="c-dots" cx="500" cy="500" r="172" />
+                <circle class="c-dot" cx="@Px(172, 0)" cy="@Py(172, 0)" r="3" />
+                <circle class="c-dot" cx="@Px(172, 120)" cy="@Py(172, 120)" r="3" />
+                <circle class="c-dot" cx="@Px(172, 240)" cy="@Py(172, 240)" r="3" />
+            </svg>
+
+            @* tarot compass star *@
+            <svg class="cosmos-layer spin spin-rev" style="--spin:260s" viewBox="0 0 1000 1000">
+                <polygon class="c-line" points="@_starPoints" />
+                <circle class="c-faint" cx="500" cy="500" r="30" />
+            </svg>
+        </div>
+    </div>
+
+    <i class="shooting" style="left:8%;top:10%;--shoot-del:3s;--shoot-dur:17s"></i>
+    <i class="shooting" style="left:58%;top:4%;--shoot-del:11s;--shoot-dur:23s"></i>
+</div>
+
+@code {
+    private sealed record Star(double X, double Y, double R);
+    private sealed record StarGroup(double Dur, double Del, double Op, List<Star> Set);
+
+    private readonly List<StarGroup> _groups = new();
+    private readonly List<Star> _sparks = new();
+    private readonly int[] _ticks = [130, 190, 270, 350, 430, 570, 650, 730, 810, 900];
+    private string _starPoints = "";
+
+    private static string F(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    private static string Px(double r, double deg) => F(500 + r * Math.Cos(deg * Math.PI / 180));
+    private static string Py(double r, double deg) => F(500 + r * Math.Sin(deg * Math.PI / 180));
+    private static string SparkPath(Star s) =>
+        $"M{F(s.X - s.R)} {F(s.Y)}H{F(s.X + s.R)}M{F(s.X)} {F(s.Y - s.R)}V{F(s.Y + s.R)}";
+
+    protected override void OnInitialized()
+    {
+        var rnd = new Random(7); // fixed seed: same sky every render
+        List<Star> Make(int n, double r0, double r1) =>
+            Enumerable.Range(0, n).Select(_ => new Star(rnd.NextDouble() * 1600, rnd.NextDouble() * 1000, r0 + rnd.NextDouble() * (r1 - r0))).ToList();
+
+        // three depths, each split in two halves that twinkle out of step
+        void AddDepth(List<Star> all, double op, double dur, double del)
+        {
+            _groups.Add(new StarGroup(dur, del, op, all.Where((_, i) => i % 2 == 0).ToList()));
+            _groups.Add(new StarGroup(dur * 1.35, del + 2.2, op, all.Where((_, i) => i % 2 == 1).ToList()));
+        }
+        AddDepth(Make(110, .5, 1.0), .55, 7, 0);
+        AddDepth(Make(52, .9, 1.5), .8, 5.5, 1);
+        AddDepth(Make(18, 1.3, 2.1), 1, 4.2, .5);
+        _sparks.AddRange(Make(9, 4, 7));
+
+        // 16-point star: 4 long cardinal spikes, 4 medium diagonals, 8 short ones
+        var sb = new System.Text.StringBuilder();
+        for (var i = 0; i < 32; i++)
+        {
+            var spike = i / 2;
+            var outer = i % 2 == 0;
+            var ang = (i * 11.25 - 90) * Math.PI / 180;
+            double r = outer ? (spike % 4 == 0 ? 232 : spike % 2 == 0 ? 150 : 100) : 34;
+            sb.Append(F(500 + r * Math.Cos(ang))).Append(',').Append(F(500 + r * Math.Sin(ang))).Append(' ');
+        }
+        _starPoints = sb.ToString().TrimEnd();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await JS.InvokeVoidAsync("portfolio.initBackground");
+    }
+}

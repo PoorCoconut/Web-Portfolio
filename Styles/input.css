@@ -119,6 +119,77 @@ h1:focus { outline: none; }
 }
 .strip-item.is-center .strip-box { border-color: #fff; }
 
+/* ================= cosmic background ================= */
+.cosmos { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; --cosmos-strength: 1; }
+.cosmos::after {   /* vignette keeps the edges quiet so content stays readable */
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 45%, transparent 50%, rgba(3,0,19,.78) 100%);
+}
+.cosmos svg * { vector-effect: non-scaling-stroke; }
+
+.cosmos-glow {
+  position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%;
+  background: radial-gradient(circle, rgba(88,64,190,.15), transparent 62%);
+  animation: cosmos-drift var(--drift-dur, 48s) ease-in-out infinite alternate;
+}
+.cosmos-glow-b { background: radial-gradient(circle, rgba(46,86,176,.11), transparent 62%); }
+@keyframes cosmos-drift { to { transform: translate3d(var(--drift-x, 6vmax), var(--drift-y, 4vmax), 0); } }
+
+/* pointer parallax (--mx/--my are -1..1, --par is pixels of travel) */
+.cosmos-par {
+  transform: translate3d(
+    calc(var(--mx, 0) * var(--par, 0) * 1px),
+    calc(var(--my, 0) * var(--par, 0) * 1px + var(--sp, 0) * var(--par-sy, 0) * 1px), 0);
+}
+
+.cosmos-stars { position: absolute; left: -4%; top: -4%; width: 108%; height: 108%; }
+.tw { animation: cosmos-twinkle var(--tw-dur, 6s) ease-in-out var(--tw-del, 0s) infinite; }
+@keyframes cosmos-twinkle { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
+
+.cosmos-diagram {
+  --sz: min(150vmin, 1700px);
+  position: absolute; left: 50%; top: 50%;
+  width: var(--sz); height: var(--sz); margin: calc(var(--sz) / -2) 0 0 calc(var(--sz) / -2);
+  opacity: calc(.55 * var(--cosmos-strength));
+  -webkit-mask-image: radial-gradient(circle closest-side, #000 38%, transparent 100%);
+          mask-image: radial-gradient(circle closest-side, #000 38%, transparent 100%);
+}
+/* scrolling the page slowly turns and swells the whole diagram */
+.cosmos-scroll {
+  position: absolute; inset: 0;
+  transform: rotate(calc(var(--sp, 0) * 90deg)) scale(calc(1 + var(--sp, 0) * .12));
+}
+.cosmos-layer { position: absolute; inset: 0; width: 100%; height: 100%; }
+.spin { animation: cosmos-spin var(--spin, 120s) linear infinite; will-change: transform; }
+.spin-rev { animation-direction: reverse; }
+@keyframes cosmos-spin { to { transform: rotate(360deg); } }
+
+.c-line  { fill: none; stroke: var(--color-edge); stroke-width: 1; opacity: .5; }
+.c-faint { fill: none; stroke: var(--color-edge-mid); stroke-width: 1; opacity: .3; }
+.c-dots  { fill: none; stroke: var(--color-edge); stroke-width: 1.6; stroke-linecap: round; stroke-dasharray: .1 9; opacity: .65; }
+.c-dash  { fill: none; stroke: var(--color-edge-mid); stroke-width: 1; stroke-dasharray: 10 14; opacity: .45; }
+.c-dot   { fill: var(--color-edge); opacity: .85; }
+.moon { animation: cosmos-moon 7s ease-in-out infinite; }
+@keyframes cosmos-moon { 0%, 100% { opacity: .55; } 50% { opacity: .95; } }
+
+.shooting {
+  position: absolute; width: 140px; height: 1px; opacity: 0; transform-origin: 100% 50%;
+  background: linear-gradient(90deg, transparent, #fff);
+  animation: cosmos-shoot var(--shoot-dur, 18s) linear var(--shoot-del, 0s) infinite;
+}
+@keyframes cosmos-shoot {
+  0%   { opacity: 0; transform: translate3d(0, 0, 0) rotate(24deg); }
+  1%   { opacity: .9; }
+  6%   { opacity: 0; transform: translate3d(480px, 214px, 0) rotate(24deg); }
+  100% { opacity: 0; transform: translate3d(480px, 214px, 0) rotate(24deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cosmos *, .cosmos-glow { animation: none !important; }
+  .cosmos-par, .cosmos-scroll { transform: none; }
+  .shooting { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
   .animate-float, .animate-ticker, .animate-disc, .folder-trail, .arrow-host:hover .arrow-a { animation: none; }
