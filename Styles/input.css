@@ -72,10 +72,7 @@ h1:focus { outline: none; }
   border: 1px solid var(--color-edge-dim);
   background: var(--color-void);
   transform: translate(var(--x), var(--y));
-  transition: transform 1.1s cubic-bezier(.2,.7,.2,1), border-color 1.1s;
-}
-.folder:hover .folder-trail {
-  animation: ripple 3.8s ease-in-out infinite;
+  animation: ripple 3.8s ease-in-out infinite;   /* always rippling, hover or not */
   animation-delay: var(--d);
 }
 @keyframes ripple {
@@ -124,6 +121,6 @@ h1:focus { outline: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
-  .animate-float, .animate-ticker, .animate-disc, .folder:hover .folder-trail, .arrow-host:hover .arrow-a { animation: none; }
+  .animate-float, .animate-ticker, .animate-disc, .folder-trail, .arrow-host:hover .arrow-a { animation: none; }
   .arrow-a { transform: none; transition: none; }
 }

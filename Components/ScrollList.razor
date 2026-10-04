@@ -1,7 +1,7 @@
 @* Vertical infinite scroller with faded edges. The list is rendered 3 times and the track slides by one copy, so it wraps seamlessly.
-   Size the window with Class (height), style the lines with ItemClass. Pauses on hover. *@
+   Size the window with Class (height), style the lines with ItemClass. *@
 <div class="fade-y relative overflow-hidden @Class">
-    <ul class="animate-ticker will-change-transform hover:[animation-play-state:paused]" style="--ticker-dur:@(Duration.ToString(System.Globalization.CultureInfo.InvariantCulture))s;--shift:-33.3333%">
+    <ul class="animate-ticker will-change-transform" style="--ticker-dur:@(Duration.ToString(System.Globalization.CultureInfo.InvariantCulture))s;--shift:-33.3333%">
         @for (var pass = 0; pass < 3; pass++)
         {
             foreach (var item in Items)
