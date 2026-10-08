@@ -12,41 +12,57 @@ window.portfolio = {
     els.forEach(el => io.observe(el));
   },
 
-  // Drives the cosmic background: --sp (scroll progress 0..1) and --mx/--my (eased pointer position -1..1)
+  // Cosmic background motion. Scroll progress and pointer position are EASED (exponential lerp, frame-rate independent)
+  // and written straight to the layers: [data-par] = pointer/scroll parallax, [data-turn] = degrees turned over a full page scroll.
+  // Nothing touches :root, so scrolling never forces the whole page to re-style.
   initBackground() {
     if (window.__cosmosInit) return;
     window.__cosmosInit = true;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const root = document.documentElement;
 
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const max = Math.max(1, root.scrollHeight - innerHeight);
-        root.style.setProperty('--sp', Math.min(1, Math.max(0, scrollY / max)).toFixed(4));
-        ticking = false;
-      });
+    const root = document.documentElement;
+    const pars = [...document.querySelectorAll('.cosmos-par')].map(el => ({
+      el, par: parseFloat(el.dataset.par) || 0, sy: parseFloat(el.dataset.parSy) || 0 }));
+    const turns = [...document.querySelectorAll('[data-turn]')].map(el => ({ el, turn: parseFloat(el.dataset.turn) || 0 }));
+
+    const cur = { sp: 0, mx: 0, my: 0 };
+    const tgt = { sp: 0, mx: 0, my: 0 };
+    let raf = 0, last = 0, max = 1;
+
+    const apply = () => {
+      for (const p of pars)
+        p.el.style.transform = `translate3d(${(cur.mx * p.par).toFixed(2)}px, ${(cur.my * p.par + cur.sp * p.sy).toFixed(2)}px, 0)`;
+      for (const t of turns)
+        t.el.style.transform = `rotate(${(cur.sp * t.turn).toFixed(3)}deg)`;
     };
-    addEventListener('scroll', onScroll, { passive: true });
-    addEventListener('resize', onScroll);
-    onScroll();
+
+    const frame = (now) => {
+      raf = 0;
+      const dt = Math.min(50, last ? now - last : 16);
+      last = now;
+      const k = 1 - Math.exp(-dt / 170);          // ~170ms smoothing, same feel at 60Hz or 144Hz
+      let moving = false;
+      for (const key of ['sp', 'mx', 'my']) {
+        const d = tgt[key] - cur[key];
+        if (Math.abs(d) > (key === 'sp' ? 0.0002 : 0.002)) { cur[key] += d * k; moving = true; }
+        else cur[key] = tgt[key];
+      }
+      apply();
+      if (moving) raf = requestAnimationFrame(frame); else last = 0;
+    };
+    const kick = () => { if (!raf) raf = requestAnimationFrame(frame); };
+
+    const measure = () => { max = Math.max(1, root.scrollHeight - innerHeight); tgt.sp = Math.min(1, Math.max(0, scrollY / max)); kick(); };
+    measure();
+    new ResizeObserver(measure).observe(document.body);
+    addEventListener('resize', measure);
+    addEventListener('scroll', () => { tgt.sp = Math.min(1, Math.max(0, scrollY / max)); kick(); }, { passive: true });
 
     if (matchMedia('(pointer: fine)').matches) {
-      let tx = 0, ty = 0, cx = 0, cy = 0, running = false;
-      const tick = () => {
-        cx += (tx - cx) * 0.06;
-        cy += (ty - cy) * 0.06;
-        root.style.setProperty('--mx', cx.toFixed(3));
-        root.style.setProperty('--my', cy.toFixed(3));
-        if (Math.abs(tx - cx) > 0.002 || Math.abs(ty - cy) > 0.002) requestAnimationFrame(tick);
-        else running = false;
-      };
       addEventListener('mousemove', e => {
-        tx = e.clientX / innerWidth * 2 - 1;
-        ty = e.clientY / innerHeight * 2 - 1;
-        if (!running) { running = true; requestAnimationFrame(tick); }
+        tgt.mx = e.clientX / innerWidth * 2 - 1;
+        tgt.my = e.clientY / innerHeight * 2 - 1;
+        kick();
       }, { passive: true });
     }
   }

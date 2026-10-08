@@ -1,102 +1,132 @@
 @inject IJSRuntime JS
 
-@* Fixed, click-through backdrop. Layers (back to front): drifting nebula glows, twinkling stars + sparkles, a big celestial diagram
-   (axes, overlapping circles, crescent moons, rotating orbit rings, a 16-point compass star) and the odd shooting star.
-   Pointer parallax and scroll-driven rotation come from CSS vars (--mx, --my, --sp) set by portfolio.js. All strokes are 1px like the rest of the site. *@
+@* Fixed, click-through backdrop. Back to front: drifting nebula glows, twinkling stars + sparkles, then a big celestial diagram:
+   static geometry (a clock face with ticks, axes, circles, crescent hub), orbit rings, a compass star, and two "clock hands":
+   an outer moon (slow) and an inner moon (12x faster) that circle independently.
+   Performance: everything animates with transform/opacity on its own layer. Scroll + pointer motion is eased (lerp) in portfolio.js
+   and written straight to the layers marked data-turn / data-par, so the page itself never has to re-style while you scroll. *@
 <div class="cosmos" aria-hidden="true">
     <div class="cosmos-glow" style="left:-18vmax;top:-26vmax;--drift-dur:44s;--drift-x:7vmax;--drift-y:5vmax"></div>
     <div class="cosmos-glow cosmos-glow-b" style="right:-24vmax;bottom:-30vmax;--drift-dur:58s;--drift-x:-6vmax;--drift-y:-4vmax"></div>
 
-    <svg class="cosmos-stars cosmos-par" style="--par:8;--par-sy:-18" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+    <div class="cosmos-stars cosmos-par" data-par="8" data-par-sy="-18">
         @foreach (var g in _groups)
         {
-            <g class="tw" style="--tw-dur:@(F(g.Dur))s;--tw-del:@(F(g.Del))s" fill="#fff" fill-opacity="@F(g.Op)">
+            <svg class="cosmos-layer tw" style="--tw-dur:@(F(g.Dur))s;--tw-del:@(F(g.Del))s" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" fill="#fff" fill-opacity="@F(g.Op)">
                 @foreach (var s in g.Set)
                 {
                     <circle cx="@F(s.X)" cy="@F(s.Y)" r="@F(s.R)" />
                 }
-            </g>
+            </svg>
         }
-        <g class="tw" style="--tw-dur:8s;--tw-del:1.5s" fill="none" stroke="#fff" stroke-width="1">
+        <svg class="cosmos-layer tw" style="--tw-dur:8s;--tw-del:1.5s" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" fill="none" stroke="#fff" stroke-width="1">
             @foreach (var s in _sparks)
             {
                 <path d="@SparkPath(s)" />
             }
-        </g>
-    </svg>
+        </svg>
+    </div>
 
-    <div class="cosmos-diagram cosmos-par" style="--par:-14">
-        <div class="cosmos-scroll">
+    <div class="cosmos-diagram cosmos-par" data-par="-14">
 
-            @* fixed geometry: axes, overlapping circles, moons *@
-            <svg class="cosmos-layer" viewBox="0 0 1000 1000">
-                <defs>
-                    <mask id="cres-lg" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
-                        <circle cx="500" cy="500" r="60" fill="#fff" />
-                        <circle cx="500" cy="484" r="46" fill="#000" />
-                    </mask>
-                    <mask id="cres-sm" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
-                        <circle cx="500" cy="215" r="40" fill="#fff" />
-                        <circle cx="500" cy="203" r="29" fill="#000" />
-                    </mask>
-                </defs>
+        @* static: clock face (outer ring + ticks), inner ring, axes, circles, crescent hub *@
+        <svg class="cosmos-layer" viewBox="0 0 1000 1000">
+            <defs>
+                <mask id="cres-lg" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
+                    <circle cx="500" cy="500" r="60" fill="#fff" />
+                    <circle cx="500" cy="484" r="46" fill="#000" />
+                </mask>
+            </defs>
 
-                <line class="c-line" x1="500" y1="40" x2="500" y2="960" />
-                <line class="c-faint" x1="70" y1="500" x2="930" y2="500" />
-                <path class="c-dot" d="M500 22 L504 42 L500 56 L496 42 Z" />
-                <path class="c-dot" d="M946 500 L926 496 L914 500 L926 504 Z" />
-                <path class="c-dot" d="M54 500 L74 496 L86 500 L74 504 Z" />
+            <line class="c-line" x1="500" y1="40" x2="500" y2="960" />
+            <line class="c-faint" x1="70" y1="500" x2="930" y2="500" />
+            <path class="c-dot" d="M500 22 L504 42 L500 56 L496 42 Z" />
+            <path class="c-dot" d="M946 500 L926 496 L914 500 L926 504 Z" />
+            <path class="c-dot" d="M54 500 L74 496 L86 500 L74 504 Z" />
 
-                <circle class="c-faint" cx="500" cy="300" r="190" />
-                <circle class="c-faint" cx="500" cy="700" r="190" />
-                <circle class="c-line" cx="500" cy="500" r="262" />
-                <circle class="c-faint" cx="500" cy="500" r="136" />
-                <ellipse class="c-faint" cx="500" cy="500" rx="372" ry="212" />
-                <circle class="c-line" cx="500" cy="500" r="66" />
+            <circle class="c-faint" cx="500" cy="300" r="190" />
+            <circle class="c-faint" cx="500" cy="700" r="190" />
+            <ellipse class="c-faint" cx="500" cy="500" rx="372" ry="212" />
 
-                @foreach (var y in _ticks)
-                {
-                    <circle class="c-dot" cx="500" cy="@y" r="2" />
-                }
+            <circle class="c-line" cx="500" cy="500" r="290" />
+            <path class="c-line" d="@_tickPath" />
+            <circle class="c-line" cx="500" cy="500" r="136" />
+            <circle class="c-line" cx="500" cy="500" r="66" />
 
-                <g class="moon">
-                    <circle cx="500" cy="500" r="52" fill="#fff" mask="url(#cres-lg)" />
-                    <circle cx="500" cy="215" r="34" fill="#fff" mask="url(#cres-sm)" />
-                    <circle cx="500" cy="880" r="11" fill="#fff" />
-                </g>
-            </svg>
+            @foreach (var y in _ticks)
+            {
+                <circle class="c-dot" cx="500" cy="@y" r="2" />
+            }
 
-            @* orbit rings, each spinning at its own pace *@
+            <circle class="c-moon" cx="500" cy="500" r="52" mask="url(#cres-lg)" />
+            <circle class="c-moon" cx="500" cy="880" r="11" />
+        </svg>
+
+        @* orbit rings: each spins on its own, and each turns a different amount as you scroll *@
+        <div class="cosmos-turn" data-turn="24">
             <svg class="cosmos-layer spin" style="--spin:90s" viewBox="0 0 1000 1000">
-                <circle class="c-dots" cx="500" cy="500" r="330" />
-                <circle class="c-dash" cx="500" cy="500" r="250" />
-                <circle class="c-line" cx="@Px(330, 20)" cy="@Py(330, 20)" r="8" />
-                <circle class="c-line" cx="@Px(330, 150)" cy="@Py(330, 150)" r="12" />
-                <circle class="c-line" cx="@Px(330, 265)" cy="@Py(330, 265)" r="7" />
-                <circle class="c-dot" cx="@Px(250, 60)" cy="@Py(250, 60)" r="3.5" />
-                <circle class="c-dot" cx="@Px(250, 200)" cy="@Py(250, 200)" r="3.5" />
+                <circle class="c-dots" cx="500" cy="500" r="345" />
+                <circle class="c-dash" cx="500" cy="500" r="235" />
+                <circle class="c-line" cx="@Px(345, 20)" cy="@Py(345, 20)" r="8" />
+                <circle class="c-line" cx="@Px(345, 150)" cy="@Py(345, 150)" r="12" />
+                <circle class="c-line" cx="@Px(345, 265)" cy="@Py(345, 265)" r="7" />
+                <circle class="c-dot" cx="@Px(235, 60)" cy="@Py(235, 60)" r="3.5" />
+                <circle class="c-dot" cx="@Px(235, 200)" cy="@Py(235, 200)" r="3.5" />
             </svg>
+        </div>
 
+        <div class="cosmos-turn" data-turn="-16">
             <svg class="cosmos-layer spin spin-rev" style="--spin:150s" viewBox="0 0 1000 1000">
-                <circle class="c-dash" cx="500" cy="500" r="430" />
-                <circle class="c-faint" cx="500" cy="500" r="385" />
-                <circle class="c-line" cx="@Px(430, 100)" cy="@Py(430, 100)" r="11" />
-                <circle class="c-line" cx="@Px(430, 305)" cy="@Py(430, 305)" r="9" />
-                <circle class="c-dot" cx="@Px(430, 205)" cy="@Py(430, 205)" r="4.5" />
-                <circle class="c-dot" cx="@Px(385, 330)" cy="@Py(385, 330)" r="3" />
+                <circle class="c-dash" cx="500" cy="500" r="440" />
+                <circle class="c-faint" cx="500" cy="500" r="395" />
+                <circle class="c-line" cx="@Px(440, 100)" cy="@Py(440, 100)" r="11" />
+                <circle class="c-line" cx="@Px(440, 305)" cy="@Py(440, 305)" r="9" />
+                <circle class="c-dot" cx="@Px(440, 205)" cy="@Py(440, 205)" r="4.5" />
+                <circle class="c-dot" cx="@Px(395, 330)" cy="@Py(395, 330)" r="3" />
             </svg>
+        </div>
 
+        <div class="cosmos-turn" data-turn="48">
             <svg class="cosmos-layer spin" style="--spin:55s" viewBox="0 0 1000 1000">
-                <circle class="c-dots" cx="500" cy="500" r="172" />
-                <circle class="c-dot" cx="@Px(172, 0)" cy="@Py(172, 0)" r="3" />
-                <circle class="c-dot" cx="@Px(172, 120)" cy="@Py(172, 120)" r="3" />
-                <circle class="c-dot" cx="@Px(172, 240)" cy="@Py(172, 240)" r="3" />
+                <circle class="c-dots" cx="500" cy="500" r="190" />
+                <circle class="c-dot" cx="@Px(190, 0)" cy="@Py(190, 0)" r="3" />
+                <circle class="c-dot" cx="@Px(190, 120)" cy="@Py(190, 120)" r="3" />
+                <circle class="c-dot" cx="@Px(190, 240)" cy="@Py(190, 240)" r="3" />
             </svg>
+        </div>
 
-            @* tarot compass star *@
+        <div class="cosmos-turn" data-turn="-12">
             <svg class="cosmos-layer spin spin-rev" style="--spin:260s" viewBox="0 0 1000 1000">
                 <polygon class="c-line" points="@_starPoints" />
                 <circle class="c-faint" cx="500" cy="500" r="30" />
+            </svg>
+        </div>
+
+        @* clock hand 1 (outer ring): slow. One lap per 360s, and 30 degrees over a full page scroll *@
+        <div class="cosmos-turn" data-turn="30">
+            <svg class="cosmos-layer spin" style="--spin:360s" viewBox="0 0 1000 1000">
+                <defs>
+                    <mask id="cres-out" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
+                        <circle cx="500" cy="210" r="34" fill="#fff" />
+                        <circle cx="500" cy="200" r="24" fill="#000" />
+                    </mask>
+                </defs>
+                <line class="c-line" x1="500" y1="442" x2="500" y2="240" />
+                <circle class="c-moon" cx="500" cy="210" r="28" mask="url(#cres-out)" />
+            </svg>
+        </div>
+
+        @* clock hand 2 (inner ring): 12x faster, like a minute hand against an hour hand *@
+        <div class="cosmos-turn" data-turn="360">
+            <svg class="cosmos-layer spin" style="--spin:30s" viewBox="0 0 1000 1000">
+                <defs>
+                    <mask id="cres-in" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
+                        <circle cx="500" cy="364" r="22" fill="#fff" />
+                        <circle cx="500" cy="358" r="14.5" fill="#000" />
+                    </mask>
+                </defs>
+                <line class="c-line" x1="500" y1="442" x2="500" y2="383" />
+                <circle class="c-moon" cx="500" cy="364" r="17" mask="url(#cres-in)" />
             </svg>
         </div>
     </div>
@@ -113,6 +143,7 @@
     private readonly List<Star> _sparks = new();
     private readonly int[] _ticks = [130, 190, 270, 350, 430, 570, 650, 730, 810, 900];
     private string _starPoints = "";
+    private string _tickPath = "";
 
     private static string F(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
     private static string Px(double r, double deg) => F(500 + r * Math.Cos(deg * Math.PI / 180));
@@ -126,15 +157,10 @@
         List<Star> Make(int n, double r0, double r1) =>
             Enumerable.Range(0, n).Select(_ => new Star(rnd.NextDouble() * 1600, rnd.NextDouble() * 1000, r0 + rnd.NextDouble() * (r1 - r0))).ToList();
 
-        // three depths, each split in two halves that twinkle out of step
-        void AddDepth(List<Star> all, double op, double dur, double del)
-        {
-            _groups.Add(new StarGroup(dur, del, op, all.Where((_, i) => i % 2 == 0).ToList()));
-            _groups.Add(new StarGroup(dur * 1.35, del + 2.2, op, all.Where((_, i) => i % 2 == 1).ToList()));
-        }
-        AddDepth(Make(110, .5, 1.0), .55, 7, 0);
-        AddDepth(Make(52, .9, 1.5), .8, 5.5, 1);
-        AddDepth(Make(18, 1.3, 2.1), 1, 4.2, .5);
+        // one layer per depth; each twinkles at its own pace (opacity on its own layer = cheap)
+        _groups.Add(new StarGroup(9, 0, .6, Make(110, .5, 1.0)));
+        _groups.Add(new StarGroup(7, 2, .85, Make(52, .9, 1.5)));
+        _groups.Add(new StarGroup(5, 1, 1, Make(18, 1.3, 2.1)));
         _sparks.AddRange(Make(9, 4, 7));
 
         // 16-point star: 4 long cardinal spikes, 4 medium diagonals, 8 short ones
@@ -148,6 +174,16 @@
             sb.Append(F(500 + r * Math.Cos(ang))).Append(',').Append(F(500 + r * Math.Sin(ang))).Append(' ');
         }
         _starPoints = sb.ToString().TrimEnd();
+
+        // clock face: 60 ticks just inside the r=290 ring, longer every 5th
+        var tp = new System.Text.StringBuilder();
+        for (var i = 0; i < 60; i++)
+        {
+            var a = (i * 6 - 90) * Math.PI / 180;
+            var inner = 290 - (i % 5 == 0 ? 16 : 7);
+            tp.Append($"M{F(500 + inner * Math.Cos(a))} {F(500 + inner * Math.Sin(a))}L{F(500 + 290 * Math.Cos(a))} {F(500 + 290 * Math.Sin(a))}");
+        }
+        _tickPath = tp.ToString();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
