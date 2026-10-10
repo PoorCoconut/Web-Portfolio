@@ -1,0 +1,36 @@
+@using MyWebPortfolio.Models
+
+@* "I MAKE GAMES. I MAKE MUSIC. I MAKE SOFTWARE." band + one card per area (word, one-line description, top 3 things).
+   Clicking a card opens that page. Cards are plain data (Teaser), so Home decides what they say. *@
+<section id="summary" class="mt-14 md:mt-20">
+    <h2 class="reveal border-y border-edge-mid py-1.5 text-center text-[clamp(.8rem,2.3vw,1.15rem)] font-bold leading-none tracking-tight">I MAKE GAMES. I MAKE MUSIC. I MAKE SOFTWARE.</h2>
+
+    <div class="mt-5 grid gap-5 lg:grid-cols-3">
+        @for (var i = 0; i < Items.Count; i++)
+        {
+            var t = Items[i];
+            <div class="cq reveal" style="--reveal-delay:@(i * 150)ms">
+                <a href="@t.Target" class="teaser block p-[6cqw]" aria-label="Open @t.Word">
+                    <div class="flex items-start justify-between gap-[3cqw]">
+                        <div class="min-w-0">
+                            <p class="text-[max(4.2cqw,12px)] font-bold leading-none">I MAKE</p>
+                            <p class="mt-[1.2cqw] text-[13.5cqw] font-bold uppercase leading-[.95] tracking-[-0.02em]">@t.Word</p>
+                        </div>
+                        <ArrowIcon Rotate="90" Class="teaser-arrow mt-[1cqw] size-[7cqw] shrink-0" />
+                    </div>
+                    <p class="mt-[4cqw] text-[max(4.2cqw,13px)] leading-snug text-edge">@t.Blurb</p>
+                    <ul class="mt-[5cqw] space-y-[1.6cqw] border-t border-edge-dim pt-[4cqw] text-[max(3.6cqw,11px)] font-medium uppercase tracking-[0.2em]">
+                        @foreach (var top in t.Top)
+                        {
+                            <li class="truncate">@top</li>
+                        }
+                    </ul>
+                </a>
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<Teaser> Items { get; set; } = [];
+}

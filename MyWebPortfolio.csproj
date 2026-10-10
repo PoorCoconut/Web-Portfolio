@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -18,5 +18,6 @@
   <Target Name="BuildTailwind" BeforeTargets="BeforeBuild" Condition="Exists('$(TailwindExe)')">
     <Exec Command="&quot;$(TailwindExe)&quot; -i Styles/input.css -o wwwroot/css/site.css --minify" />
   </Target>
+  <ProjectExtensions><VisualStudio><UserProperties global_1json__JsonSchema="https://api.app-prg1.zerops.io/api/rest/public/settings/import-project-yml-json-schema.json" /></VisualStudio></ProjectExtensions>
 
 </Project>

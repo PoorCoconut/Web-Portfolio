@@ -1,20 +1,22 @@
 @* Owns "which track is playing" so only one can play at a time. Wire real audio into Toggle() later. *@
-<section id="tunes" class="grid gap-5 md:grid-cols-[2.05fr_1fr]">
-    <div class="cq">
-        <p class="reveal text-[4.2cqw] font-bold leading-none">I MAKE</p>
-        <h2 class="reveal mt-[1cqw] text-[24cqw] font-bold uppercase leading-[.9] tracking-[-0.02em]">TUNES</h2>
-        <div class="mt-[9cqw] flex flex-col gap-[9cqw]">
-            @for (var i = 0; i < Tracks.Length; i++)
-            {
-                var t = Tracks[i];
-                <div class="reveal" style="--reveal-delay:@(i * 150)ms">
-                    <TrackCard Title="@t" IsPlaying="@(_playing == t)" OnToggle="() => Toggle(t)" />
-                </div>
-            }
+<ScreenSection Id="tunes">
+    <div class="grid gap-5 md:grid-cols-[2.05fr_1fr]">
+        <div class="cq">
+            <p class="reveal text-[4.2cqw] font-bold leading-none">I MAKE</p>
+            <h2 class="reveal mt-[1cqw] text-[24cqw] font-bold uppercase leading-[.9] tracking-[-0.02em]">TUNES</h2>
+            <div class="mt-[9cqw] flex flex-col gap-[9cqw]">
+                @for (var i = 0; i < Tracks.Length; i++)
+                {
+                    var t = Tracks[i];
+                    <div class="reveal" style="--reveal-delay:@(i * 150)ms">
+                        <TrackCard Title="@t" IsPlaying="@(_playing == t)" OnToggle="() => Toggle(t)" />
+                    </div>
+                }
+            </div>
         </div>
+        <ImageBox Class="min-h-72" Fade="fade-b" Float="true" FloatDelay="2" Delay="200" />
     </div>
-    <ImageBox Class="min-h-72" Fade="fade-b" Float="true" FloatDelay="2" Delay="200" />
-</section>
+</ScreenSection>
 
 @code {
     private static readonly string[] Tracks = ["void vanguard", "terminal friction", "banhwa"];

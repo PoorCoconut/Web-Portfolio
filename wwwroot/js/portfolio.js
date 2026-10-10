@@ -12,6 +12,20 @@ window.portfolio = {
     els.forEach(el => io.observe(el));
   },
 
+  // Called by the layout every time the page changes: back to the top, then fade-ins start watching the new page.
+  pageEntered(first) {
+    if (!first) scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    this.observeReveals();
+  },
+
+  // Scroll to an element by id (used by the ABOUT / CONTACT links in the nav).
+  goTo(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
+  },
+
   // Cosmic background motion. Scroll progress and pointer position are EASED (exponential lerp, frame-rate independent)
   // and written straight to the layers: [data-par] = pointer/scroll parallax, [data-turn] = degrees turned over a full page scroll.
   // Nothing touches :root, so scrolling never forces the whole page to re-style.

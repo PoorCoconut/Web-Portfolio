@@ -1,0 +1,16 @@
+@* The frame every page sits in: at least window-tall, content centered vertically when it is shorter and simply growing when it is taller.
+   ShowDivider puts the circle-on-a-line at the bottom of the page. *@
+<section id="@Id" class="screen @Class">
+    <div class="screen-body">@ChildContent</div>
+    @if (ShowDivider)
+    {
+        <Divider Class="my-10 md:my-14" />
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired] public string Id { get; set; } = "";
+    [Parameter] public string Class { get; set; } = "";
+    [Parameter] public bool ShowDivider { get; set; } = true;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

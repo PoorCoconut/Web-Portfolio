@@ -1,19 +1,56 @@
 @inherits LayoutComponentBase
+@inject IJSRuntime JS
+@inject NavigationManager Nav
 
 <CosmicBackground />
 
+@* Slim bar that stays at the top while you scroll. PROJECTS opens on hover (desktop) or click/tap and lists the project pages.
+   The cosmic background lives out here, so it keeps drifting while you move between pages. *@
+<header class="sticky top-0 z-30 bg-void/80">
+    <div class="mx-auto flex w-full max-w-[1280px] flex-wrap items-end justify-between gap-x-4 gap-y-2 px-5 pb-1 pt-6 text-xs font-semibold md:px-[6%] md:text-[15px]">
+        <a href="./" class="tracking-tight">CUESHE ALFORQUE || CRAFTY COCO</a>
+
+        <nav class="flex items-end gap-5 md:gap-8">
+            <a href="./" class="@(LinkClass(CurrentPath == ""))">HOME</a>
+
+            <div class="group relative" @onmouseleave="OnLeave">
+                <button type="button" @onclick="Toggle" aria-haspopup="true" aria-expanded="@(_open ? "true" : "false")"
+                        class="flex items-center gap-1.5 @(LinkClass(IsProjectPage))">
+                    PROJECTS
+                    <svg viewBox="0 0 10 6" class="h-[.45em] w-[.8em] transition-transform duration-300 group-hover:rotate-180 @(_open ? "rotate-180" : "")"
+                         fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M1 1l4 4 4-4" /></svg>
+                </button>
+
+                @* pt-3 (not a margin) keeps the hover alive while the pointer travels from the button down to the menu *@
+                <div class="absolute right-0 top-full z-40 pt-3 transition-[opacity,translate,visibility] duration-300 @MenuClass"
+                     style="@(_picked ? "display:none" : null)">
+                    <ul class="min-w-40 border border-edge bg-void py-2">
+                        @foreach (var (label, slug) in _projects)
+                        {
+                            <li>
+                                <a href="@slug" @onclick="Pick"
+                                   class="block px-5 py-2 tracking-[0.2em] transition-colors hover:bg-white/5 @(CurrentPath == slug ? "underline underline-offset-4" : "hover:text-edge")">@label</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <a href="#about" @onclick='() => Go("about")' @onclick:preventDefault class="transition-colors hover:text-edge">ABOUT</a>
+            <a href="#contact" @onclick='() => Go("contact")' @onclick:preventDefault class="transition-colors hover:text-edge">CONTACT</a>
+        </nav>
+    </div>
+</header>
+
+@* click anywhere outside to close a click-opened menu *@
+@if (_open)
+{
+    <div class="fixed inset-0 z-20" @onclick="Close" aria-hidden="true"></div>
+}
+
 <div class="relative z-10 mx-auto w-full max-w-[1280px] px-5 pb-16 md:px-[6%]">
-    <header class="pt-6">
-        <div class="flex items-end justify-between gap-4 text-xs font-semibold md:text-[15px]">
-            <a href="#home" class="tracking-tight">CUESHE ALFORQUE || CRAFTY COCO</a>
-            <nav class="flex gap-5 md:gap-8">
-                <a href="#home" class="underline underline-offset-4">HOME</a>
-                <a href="#about" class="transition-colors hover:text-edge">ABOUT</a>
-                <a href="#contact" class="transition-colors hover:text-edge">CONTACT</a>
-            </nav>
-        </div>
-        <Divider Class="mt-3" Gap="34" />
-    </header>
+    @* the circle is 44px (68px on md+) tall and centered on the line, so the margin = its top half: it clears the sticky bar *@
+    <Divider Class="mt-[22px] md:mt-[34px]" Gap="34" />
 
     <main>@Body</main>
 
@@ -22,3 +59,49 @@
         <section id="contact"><p class="text-edge-mid">CONTACT — coming soon</p></section>
     </footer>
 </div>
+
+@code {
+    private static readonly (string Label, string Slug)[] _projects = [("GAMES", "games"), ("TUNES", "tunes"), ("SOFTWARE", "software")];
+
+    private bool _open;     // opened by click / tap
+    private bool _picked;   // just chose an item: stay hidden until the pointer leaves, even though it is still hovering
+    private string? _lastPath;
+
+    // "" = home, otherwise "games" / "tunes" / "software" (no slashes, query or #hash)
+    private string CurrentPath
+    {
+        get
+        {
+            var p = Nav.ToBaseRelativePath(Nav.Uri);
+            var cut = p.IndexOfAny(new[] { '?', '#' });
+            if (cut >= 0) p = p[..cut];
+            return p.Trim('/');
+        }
+    }
+
+    private bool IsProjectPage => _projects.Any(x => x.Slug == CurrentPath);
+
+    private static string LinkClass(bool active) =>
+        active ? "underline underline-offset-4" : "transition-colors hover:text-edge";
+
+    private string MenuClass => _open
+        ? "visible translate-y-0 opacity-100"
+        : "invisible -translate-y-1 opacity-0 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100";
+
+    private void Toggle() { _picked = false; _open = !_open; }
+    private void Close() => _open = false;
+    private void OnLeave() => _picked = false;
+    private void Pick() { _open = false; _picked = true; }   // the link itself does the navigating
+
+    private async Task Go(string id) => await JS.InvokeVoidAsync("portfolio.goTo", id);
+
+    // Runs after every render of the layout; when the page changed: scroll to top and start the fade-ins of the new page.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var path = CurrentPath;
+        if (path == _lastPath) return;
+        var first = _lastPath is null;
+        _lastPath = path;
+        await JS.InvokeVoidAsync("portfolio.pageEntered", first);
+    }
+}

@@ -35,6 +35,20 @@ html { background: var(--color-void); scroll-behavior: smooth; }
 body { @apply font-sans bg-void text-white antialiased overflow-x-hidden; }
 h1:focus { outline: none; }
 
+/* ---------- page frame (ScreenSection). --header-h = height of the sticky nav bar ---------- */
+html { --header-h: 3.5rem; scroll-padding-top: var(--header-h); }
+.screen { min-height: calc(100svh - var(--header-h)); display: flex; flex-direction: column; }
+.screen-body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-block: 1.5rem; }
+
+/* ---------- home summary cards ---------- */
+.teaser { border: 1px solid var(--color-edge-dim); transition: border-color .9s, box-shadow .9s, background-color .9s; }
+.teaser:hover, .teaser:focus-visible {
+  border-color: #fff; background-color: rgba(255,255,255,.03); outline: none;
+  box-shadow: 0 0 32px rgba(160,159,166,.28), inset 0 0 24px rgba(160,159,166,.08);
+}
+.teaser-arrow { transition: translate .7s cubic-bezier(.2,.7,.2,1); }
+.teaser:hover .teaser-arrow, .teaser:focus-visible .teaser-arrow { translate: 0 1.6cqw; }
+
 /* Blazor loading screen, recolored to match the theme */
 .loading-progress circle { stroke: var(--color-edge-dim); }
 .loading-progress circle:last-child { stroke: #fff; }
@@ -182,4 +196,5 @@ h1:focus { outline: none; }
   .reveal { opacity: 1; transform: none; transition: none; }
   .animate-float, .animate-ticker, .animate-disc, .folder-trail, .arrow-host:hover .arrow-a { animation: none; }
   .arrow-a { transform: none; transition: none; }
+  .teaser, .teaser-arrow { transition: none; }
 }
