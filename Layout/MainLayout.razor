@@ -50,13 +50,13 @@
 
 <div class="relative z-10 mx-auto w-full max-w-[1280px] px-5 pb-16 md:px-[6%]">
     @* the circle is 44px (68px on md+) tall and centered on the line, so the margin = its top half: it clears the sticky bar *@
-    <Divider Class="mt-[22px] md:mt-[34px]" Gap="34" />
+    <Divider Class="mt-[22px] md:mt-[34px]" Gap="34" Breakable="false" />
 
     <main>@Body</main>
 
     <footer class="mt-10 flex flex-col gap-6 text-xs font-semibold md:flex-row md:justify-between">
-        <section id="about"><p class="text-edge-mid">ABOUT — coming soon</p></section>
-        <section id="contact"><p class="text-edge-mid">CONTACT — coming soon</p></section>
+        <section id="about" data-hit><p class="text-edge-mid">ABOUT — coming soon</p></section>
+        <section id="contact" data-hit><p class="text-edge-mid">CONTACT — coming soon</p></section>
     </footer>
 </div>
 

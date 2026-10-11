@@ -1,6 +1,6 @@
 @* Bordered placeholder for an image. Give it a size through Class (aspect-[w/h], flex-1, ...).
    Float makes it drift up and down. Put an <img class="size-full object-cover"> in ChildContent later. *@
-<div class="reveal relative @Class" style="--reveal-delay:@(Delay)ms">
+<div data-hit class="reveal relative @Class" style="--reveal-delay:@(Delay)ms">
     <div class="absolute inset-0 border border-edge @(Float ? "animate-float" : "") @Fade"
          style="--float-dur:@F(FloatDuration)s;--float-delay:@F(FloatDelay)s;--float-amp:@(FloatAmp)px">
         @ChildContent

@@ -1,20 +1,22 @@
 @page "/games"
+@implements IAsyncDisposable
+@inject IJSRuntime JS
 
 <PageTitle>Games | Cueshe Alforque | Crafty Coco</PageTitle>
 
 <ScreenSection Id="games">
 <div class="grid gap-5 md:grid-cols-[1.41fr_1fr] md:items-stretch">
     <div class="cq flex flex-col">
-        <p class="reveal text-[4.2cqw] font-bold leading-none">I MAKE</p>
-        <h2 class="reveal arrow-host mt-[1cqw] text-[27.5cqw] font-bold uppercase leading-[.9] tracking-[-0.02em]" aria-label="GAMES">G<ArrowheadA />MES</h2>
+        <p data-hit class="reveal w-fit text-[4.2cqw] font-bold leading-none">I MAKE</p>
+        <h2 data-hit class="reveal arrow-host mt-[1cqw] text-[27.5cqw] font-bold uppercase leading-[.9] tracking-[-0.02em]" aria-label="GAMES">G<ArrowheadA />MES</h2>
         <ScrollList Items="@_games" Class="mt-[3cqw] h-[36cqw]" Duration="26"
                     ItemClass="text-[4.9cqw] font-medium uppercase leading-[1.15] tracking-[0.2em]" />
-        <p class="reveal mt-[2.5cqw] font-koulen text-[9cqw] leading-none tracking-[0.01em]">FEATURED GAMES</p>
+        <p data-hit class="reveal mt-[2.5cqw] w-fit font-koulen text-[9cqw] leading-none tracking-[0.01em]">FEATURED GAMES</p>
     </div>
 
     <div class="cq flex flex-col gap-[3cqw] md:justify-between">
         <ImageBox Class="aspect-[216/224] w-full" Float="true" FloatDuration="9" FloatDelay="0.6" Delay="150" />
-        <div class="reveal flex items-end justify-between" style="--reveal-delay:300ms" aria-label="Konami code">
+        <div data-hit-children class="reveal flex items-end justify-between" style="--reveal-delay:300ms" aria-label="Konami code">
             <ArrowIcon Rotate="-90" Class="size-[9cqw]" /><ArrowIcon Rotate="-90" Class="size-[9cqw]" />
             <ArrowIcon Rotate="90" Class="size-[9cqw]" /><ArrowIcon Rotate="90" Class="size-[9cqw]" />
             <ArrowIcon Rotate="180" Class="size-[9cqw]" /><ArrowIcon Class="size-[9cqw]" />
@@ -33,5 +35,27 @@
 </ScreenSection>
 
 @code {
+    // Konami tank mode lives in wwwroot/js/konami.js and is only loaded on this page.
+    private IJSObjectReference? _konami;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        _konami = await JS.InvokeAsync<IJSObjectReference>("import", "./js/konami.js");
+        await _konami.InvokeVoidAsync("init");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_konami is null) return;
+        try
+        {
+            await _konami.InvokeVoidAsync("dispose");
+            await _konami.DisposeAsync();
+        }
+        catch (JSException) { }
+        catch (JSDisconnectedException) { }
+    }
+
     private readonly string[] _games = ["Void Vanguard", "Courier", "Elkemy", "Ghost Gambit", "Terminal Friction", "Revelation", "Banhwa"];
 }
